@@ -35,8 +35,12 @@ export const signup = async (req, res) => {
       password: hashedPassword,
     });
     if (newUser) {
+      // generateToken(newUser._id, res);
+      // await newUser.save();
+
+      //  Presist user first, then issue auth cookie
+      const savedUser = await newUser.save();
       generateToken(newUser._id, res);
-      await newUser.save();
 
       res.status(201).json({
         _id: newUser._id,
@@ -49,8 +53,19 @@ export const signup = async (req, res) => {
     } else {
       return res.status(400).json({ message: "Invalid user data" });
     }
+    // } catch (error) {
+    //   console.log("Error in signup controller:", error);
+    //   res.status(500).json({ message: "Internal server error" });
+    // }
   } catch (error) {
     console.log("Error in signup controller:", error);
+    // Handle - race consition: unique email consraint violation
+    if (
+      error?.code === 11000 &&
+      (error?.keyPattern?.email || err.keyValue?.email)
+    ) {
+      return res.status(409).json({ message: "Email already exists" });
+    }
     res.status(500).json({ message: "Internal server error" });
   }
 };
