@@ -8,16 +8,18 @@ import { ENV } from "./lib/env.js";
 import cookieParser from "cookie-parser";
 
 const app = express();
+
 const __dirname = path.resolve();
 
 const PORT = ENV.PORT || 3000;
 
+// Recommended: Enable trust proxy if behind reverse proxy or Vercel
+app.set("trust proxy", true);
 app.use(express.json()); // req.body
 app.use(cookieParser());
 
 app.use("/api/auth", authRoute);
 app.use("/api/messages", messageRoute);
-
 // Production setup
 if (ENV.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../client/dist")));
