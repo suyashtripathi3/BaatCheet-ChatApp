@@ -7,8 +7,10 @@ import { connectDB } from "./lib/db.js";
 import { ENV } from "./lib/env.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { app, server } from "./lib/socket.js";
 
-const app = express();
+// const app = express();
+
 
 const __dirname = path.resolve();
 
@@ -32,18 +34,18 @@ if (ENV.NODE_ENV === "production") {
   });
 }
 
-// app.listen(PORT, () => {
-//   console.log(`✅ Server is running on port ${PORT}`);
-//   connectDB();
-// });
+server.listen(PORT, () => {
+  console.log(`✅ Server is running on port ${PORT}`);
+  connectDB();
+});
 
-connectDB()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`✅ Server is running on port ${PORT}`);
-    });
-  })
-  .catch((error) => {
-    console.error("Failed to connect to the database:", error);
-    process.exit(1); // Exit the process with failure
-  });
+// connectDB()
+//   .then(() => {
+//     app.listen(PORT, () => {
+//       console.log(`✅ Server is running on port ${PORT}`);
+//     });
+//   })
+//   .catch((error) => {
+//     console.error("Failed to connect to the database:", error);
+//     process.exit(1); // Exit the process with failure
+//   });
