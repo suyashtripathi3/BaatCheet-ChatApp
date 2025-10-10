@@ -4,7 +4,8 @@ import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 
 const baseURL =
-  import.meta.env.MODE === "development" ? "http://localhost:8080/" : "/";
+  // import.meta.env.MODE === "development" ? "http://localhost:8080/" : "/";
+  import.meta.env.MODE === "development" ? "https://baat-cheet-chat-app-backend.vercel.app/" : "/";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
