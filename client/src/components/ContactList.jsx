@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useChatStore } from "../store/useChatStore.js";
-import { useAuthStore } from "../store/useAuthStore.js";
 import UsersLoadingSkeleton from "./UsersLoadingSkeleton.jsx";
+import { useAuthStore } from "../store/useAuthStore";
 
 function ContactList() {
   const { getAllContacts, allContacts, setSelectedUser, isUsersLoading } =
@@ -22,7 +22,13 @@ function ContactList() {
         >
           <div className="flex items-center gap-3">
             {/* TODO: MAKE IT WORK WITH SOCKET */}
-            <div className={`avatar avatar-online`}>
+            <div
+              className={`avatar  ${
+                onlineUsers.includes(contact._id)
+                  ? " avatar-online"
+                  : " avatar-offline"
+              }`}
+            >
               <div className="size-12 rounded-full">
                 <img
                   src={contact.profilePic || "/avatar.png"}
