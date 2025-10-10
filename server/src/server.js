@@ -16,7 +16,7 @@ const PORT = ENV.PORT || 3000;
 
 // Recommended: Enable trust proxy if behind reverse proxy or Vercel
 app.set("trust proxy", true);
-app.use(express.json()); // req.body
+app.use(express.json({ limit: "5mb" })); // req.body
 app.use(cors({ origin: ENV.CLIENT_URL, credentials: true }));
 app.use(cookieParser());
 
