@@ -11,7 +11,6 @@ import { app, server } from "./lib/socket.js";
 
 // const app = express();
 
-
 const __dirname = path.resolve();
 
 const PORT = ENV.PORT || 3000;
@@ -29,8 +28,8 @@ if (ENV.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../client/dist")));
 
   // ✅ FIXED: No path argument — works in Express 5.1.0
-  app.use((_, res) => {
-    res.sendFile(path.resolve(__dirname, "../client/dist/index.html"));
+  app.use("*",(_, res) => {
+    res.sendFile(path.resolve(__dirname, "../client", "dist", "index.html"));
   });
 }
 
