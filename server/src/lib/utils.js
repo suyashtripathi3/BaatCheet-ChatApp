@@ -13,7 +13,8 @@ export const generateToken = (userId, res) => {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     httpOnly: true, // preveny XSS attacks : cross site scripting
     sameSite: "Strict",
-    secure: ENV.NODE_ENV === "development" ? false : true, // Use secure cookies in production
+    // secure: ENV.NODE_ENV === "development" ? false : true, // Use secure cookies in production
+    secure: ENV.NODE_ENV === "production" ? false : true, // Use secure cookies in production
   });
 
   return token;
