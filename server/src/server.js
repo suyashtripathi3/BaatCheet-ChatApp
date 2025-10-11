@@ -1,34 +1,51 @@
 import express from "express";
 import path from "path";
+
 import authRoute from "./routes/auth.route.js";
 import messageRoute from "./routes/message.route.js";
 import { connectDB } from "./lib/db.js";
 import { ENV } from "./lib/env.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { app } from "./lib/socket.js"; // use only app, not server
+import { app, server } from "./lib/socket.js";
+
+// const app = express();
+
 
 const __dirname = path.resolve();
 
-// Connect to DB once
-connectDB();
+const PORT = ENV.PORT || 3000;
 
+// Recommended: Enable trust proxy if behind reverse proxy or Vercel
 app.set("trust proxy", true);
-app.use(express.json({ limit: "5mb" }));
+app.use(express.json({ limit: "5mb" })); // req.body
 app.use(cors({ origin: ENV.CLIENT_URL, credentials: true }));
 app.use(cookieParser());
 
-// Routes
 app.use("/api/auth", authRoute);
 app.use("/api/messages", messageRoute);
-
-// Static build for production
+// Production setup
 if (ENV.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../client/dist")));
+
+  // ✅ FIXED: No path argument — works in Express 5.1.0
   app.use((_, res) => {
     res.sendFile(path.resolve(__dirname, "../client/dist/index.html"));
   });
 }
 
-// ❌ Don't listen on a port — just export for Vercel
-export default app;
+server.listen(PORT, () => {
+  console.log(`✅ Server is running on port ${PORT}`);
+  connectDB();
+});
+
+// connectDB()
+//   .then(() => {
+//     app.listen(PORT, () => {
+//       console.log(`✅ Server is running on port ${PORT}`);
+//     });
+//   })
+//   .catch((error) => {
+//     console.error("Failed to connect to the database:", error);
+//     process.exit(1); // Exit the process with failure
+//   });
