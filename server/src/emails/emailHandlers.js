@@ -4,7 +4,9 @@ import { createWelcomeEmailTemplate } from "./emailTemplates.js"; // <- correcte
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465, // SSL
+  secure: true, // true for 465, false for 587
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_APP_PASSWORD,
