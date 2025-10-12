@@ -24,11 +24,12 @@ app.use(cookieParser());
 app.use("/api/auth", authRoute);
 app.use("/api/messages", messageRoute);
 // Production setup
+// Production setup
 if (ENV.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../client/dist")));
 
-  // ✅ FIXED: No path argument — works in Express 5.1.0
-  app.use("*",(_, res) => {
+  // ✅ FIXED: no "*" path
+  app.use((req, res) => {
     res.sendFile(path.resolve(__dirname, "../client", "dist", "index.html"));
   });
 }
