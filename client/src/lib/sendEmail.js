@@ -8,7 +8,7 @@ export const sendWelcomeEmail = async (toEmail, name, clientURL) => {
       {
         name: name,
         email: toEmail,
-        clientURL: clientURL,
+        clientURL: import.meta.env.clientURL,
         companyName: "BaatCheet",
       },
       import.meta.env.VITE_EMAILJS_PUBLIC_KEY

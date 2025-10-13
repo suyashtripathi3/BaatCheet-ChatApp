@@ -6,7 +6,9 @@ import { sendWelcomeEmail } from "../lib/sendEmail.js";
 
 const baseURL =
   // import.meta.env.MODE === "development" ? "http://localhost:8080/" : "/";
-import.meta.env.MODE === "production" ? "https://baatcheet-chatapp-backend.onrender.com/" : "/";
+  import.meta.env.MODE === "production"
+    ? "https://baatcheet-chatapp-backend.onrender.com/"
+    : "/";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -31,26 +33,29 @@ export const useAuthStore = create((set, get) => ({
 
   // Signup store
 
-signup: async (data) => {
-  set({ isSigningUp: true });
-  try {
-    const res = await axiosInstance.post("/auth/signup", data);
-    set({ authUser: res.data });
+  signup: async (data) => {
+    set({ isSigningUp: true });
+    try {
+      const res = await axiosInstance.post("/auth/signup", data);
+      set({ authUser: res.data });
 
-    toast.success("Account created successfully!");
+      toast.success("Account created successfully!");
 
-    // Call EmailJS
-    await sendWelcomeEmail(res.data.email, res.data.fullName, "http://localhost:5173");
+      // Call EmailJS
+      await sendWelcomeEmail(
+        res.data.email,
+        res.data.fullName,
+        import.meta.env.clientURL
+      );
 
-    get().connectSocket();
-  } catch (error) {
-    toast.error(error.response?.data?.message || "Signup failed");
-    console.log("Signup Error:", error.response?.data);
-  } finally {
-    set({ isSigningUp: false });
-  }
-},
-
+      get().connectSocket();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Signup failed");
+      console.log("Signup Error:", error.response?.data);
+    } finally {
+      set({ isSigningUp: false });
+    }
+  },
 
   login: async (data) => {
     set({ isLoggingIn: true });
