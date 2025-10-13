@@ -2,10 +2,11 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
+import { sendWelcomeEmail } from "../lib/sendEmail.js";
 
 const baseURL =
   // import.meta.env.MODE === "development" ? "http://localhost:8080/" : "/";
-  import.meta.env.MODE === "production" ? "https://baatcheet-chatapp-backend.onrender.com/" : "/";
+import.meta.env.MODE === "production" ? "https://baatcheet-chatapp-backend.onrender.com/" : "/";
 
 export const useAuthStore = create((set, get) => ({
   authUser: null,
@@ -28,20 +29,28 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  signup: async (data) => {
-    set({ isSigningUp: true });
-    try {
-      const res = await axiosInstance.post("/auth/signup", data);
-      set({ authUser: res.data });
+  // Signup store
 
-      toast.success("Account created successfully!");
-      get().connectSocket();
-    } catch (error) {
-      toast.error(error.response.data.message);
-    } finally {
-      set({ isSigningUp: false });
-    }
-  },
+signup: async (data) => {
+  set({ isSigningUp: true });
+  try {
+    const res = await axiosInstance.post("/auth/signup", data);
+    set({ authUser: res.data });
+
+    toast.success("Account created successfully!");
+
+    // Call EmailJS
+    await sendWelcomeEmail(res.data.email, res.data.fullName, "http://localhost:5173");
+
+    get().connectSocket();
+  } catch (error) {
+    toast.error(error.response?.data?.message || "Signup failed");
+    console.log("Signup Error:", error.response?.data);
+  } finally {
+    set({ isSigningUp: false });
+  }
+},
+
 
   login: async (data) => {
     set({ isLoggingIn: true });
