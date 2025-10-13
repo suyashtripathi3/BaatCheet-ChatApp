@@ -51,17 +51,17 @@ function ChatContainer() {
                 }`}
               >
                 <div
-                  className={`chat-bubble relative ${
+                  className={`chat-bubble relative break-words max-w-[75%] whitespace-pre-wrap overflow-hidden rounded-2xl ${
                     msg.senderId === authUser._id
-                      ? "bg-cyan-600 text-white"
-                      : "bg-slate-800 text-slate-200"
+                      ? "bg-cyan-600 text-white self-end"
+                      : "bg-slate-800 text-slate-200 self-start"
                   }`}
                 >
                   {msg.image && (
                     <img
                       src={msg.image}
                       alt="Shared"
-                      className="rounded-lg h-48 object-cover"
+                      className="rounded-lg max-h-48 w-auto max-w-full object-cover"
                     />
                   )}
                   {msg.text && <p className="mt-2">{msg.text}</p>}
