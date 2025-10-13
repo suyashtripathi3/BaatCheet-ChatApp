@@ -9,16 +9,16 @@ import ChatContainer from "../components/ChatContainer.jsx";
 import NoConersationPlaceholder from "../components/NoConersationPlaceholder.jsx";
 
 function ChatPage() {
-  const { activeTab, selectedUser } = useChatStore();
+  const { activeTab, selectedUser, setSelectedUser } = useChatStore();
 
   return (
-    <div className="relative w-full h-screen sm:h-[550px] sm:w-[70%] max-w-6xl mx-auto px-2 sm:px-4 overflow-hidden">
+    <div className="relative w-full h-screen sm:h-[550px] sm:w-[90%] max-w-6xl mx-auto px-2 sm:px-4 overflow-hidden">
       <BorderAnimatedContainer>
-        {/* 👇 Outer layout - responsive grid */}
+        {/* Responsive Layout */}
         <div className="flex flex-1 h-full w-full overflow-hidden">
-          {/* LEFT SIDE */}
+          {/* LEFT PANEL */}
           <div
-            className={`bg-slate-800/50 backdrop-blur-sm flex flex-col transition-all duration-300
+            className={`bg-slate-800/50 backdrop-blur-sm flex flex-col transition-all duration-300 ease-in-out
               ${
                 selectedUser ? "hidden md:flex md:w-80" : "flex w-full md:w-80"
               }`}
@@ -30,12 +30,27 @@ function ChatPage() {
             </div>
           </div>
 
-          {/* RIGHT SIDE */}
+          {/* RIGHT PANEL */}
           <div
-            className={`flex-1 flex flex-col bg-slate-900/50 backdrop-blur-sm transition-all duration-300 overflow-hidden
+            className={`flex-1 flex flex-col bg-slate-900/60 backdrop-blur-md transition-all duration-300 ease-in-out
               ${selectedUser ? "flex" : "hidden md:flex"}`}
           >
-            {selectedUser ? <ChatContainer /> : <NoConersationPlaceholder />}
+            {selectedUser ? (
+              <>
+                {/* Back button for mobile */}
+                <div className="md:hidden p-2">
+                  <button
+                    onClick={() => setSelectedUser(null)}
+                    className="text-sm text-slate-300 hover:text-white transition-colors"
+                  >
+                    ← Back
+                  </button>
+                </div>
+                <ChatContainer />
+              </>
+            ) : (
+              <NoConersationPlaceholder />
+            )}
           </div>
         </div>
       </BorderAnimatedContainer>
