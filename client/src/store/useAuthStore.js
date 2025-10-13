@@ -42,11 +42,8 @@ export const useAuthStore = create((set, get) => ({
       toast.success("Account created successfully!");
 
       // Call EmailJS
-      await sendWelcomeEmail(
-        res.data.email,
-        res.data.fullName,
-        import.meta.env.clientURL
-      );
+      const clientURL = import.meta.env.clientURL;
+      await sendWelcomeEmail(res.data.email, res.data.fullName, clientURL);
 
       get().connectSocket();
     } catch (error) {
