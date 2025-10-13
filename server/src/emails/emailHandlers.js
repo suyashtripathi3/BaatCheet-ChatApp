@@ -4,12 +4,10 @@ import { createWelcomeEmailTemplate } from "./emailTemplates.js"; // <- correcte
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 587,
-  secure: false,
+  service: "gmail",
   auth: {
-    user: process.env.BREVO_EMAIL,
-    pass: process.env.BREVO_API_KEY,
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
   },
 });
 
