@@ -4,6 +4,7 @@ import {
   getChatPartners,
   getMessagesByUserId,
   sendMessage,
+  upload,
 } from "../controllers/message.controller.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
 import { arcjetProtection } from "../middleware/arcjet.middleware.js";
@@ -17,6 +18,11 @@ messageRoute.use(arcjetProtection, protectRoute);
 messageRoute.get("/contacts", getAllContacts);
 messageRoute.get("/chats", getChatPartners);
 messageRoute.get("/:id", getMessagesByUserId);
-messageRoute.post("/send/:id", sendMessage);
+messageRoute.post(
+  "/send/:id",
+  protectRoute,
+  upload.single("image"),
+  sendMessage
+);
 
 export default messageRoute;

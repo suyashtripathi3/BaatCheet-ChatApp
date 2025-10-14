@@ -1,8 +1,30 @@
+import multer from "multer";
 import cloudinary from "../lib/cloudinary.js";
 import { getReceiverSocketId, io } from "../lib/socket.js";
 import Message from "../models/Message.js";
 import User from "../models/User.js";
 
+// ================= Multer Setup =================
+const storage = multer.memoryStorage();
+export const upload = multer({ storage });
+
+// ================= Helper =================
+const uploadBufferToCloudinary = (buffer) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: "chat_images" },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result.secure_url); // ✅ return the Cloudinary URL
+      }
+    );
+    stream.end(buffer);
+  });
+};
+
+// ================= Controllers =================
+
+// Get all contacts (except logged-in user)
 export const getAllContacts = async (req, res) => {
   try {
     const loggedInUserId = req.user._id;
@@ -16,6 +38,7 @@ export const getAllContacts = async (req, res) => {
   }
 };
 
+// Get messages with a specific user
 export const getMessagesByUserId = async (req, res) => {
   try {
     const myId = req.user._id;
@@ -29,35 +52,37 @@ export const getMessagesByUserId = async (req, res) => {
     });
     res.status(200).json(messages);
   } catch (error) {
-    console.error("Error in getMessages controller:", error);
+    console.error("Error in getMessagesByUserId:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
+// Send message (text + optional image)
 export const sendMessage = async (req, res) => {
   try {
-    const { text, image } = req.body;
+    const { text } = req.body;
+    const file = req.file; // multer parsed file
     const { id: receiverId } = req.params;
     const senderId = req.user._id;
 
-    if (!text && !image) {
+    if (!text && !file) {
       return res.status(400).json({ message: "Text or image is required" });
     }
+
     if (senderId.equals(receiverId)) {
       return res
         .status(400)
         .json({ message: "You cannot send message to yourself" });
     }
+
     const receiverExists = await User.exists({ _id: receiverId });
     if (!receiverExists) {
       return res.status(404).json({ message: "Receiver not found" });
     }
 
     let imageUrl;
-    if (image) {
-      // Upload base64 image to cloudinary
-      const uploadResponse = await cloudinary.uploader.upload(image);
-      imageUrl = uploadResponse.secure_url;
+    if (file) {
+      imageUrl = await uploadBufferToCloudinary(file.buffer);
     }
 
     const newMessage = new Message({
@@ -69,7 +94,7 @@ export const sendMessage = async (req, res) => {
 
     await newMessage.save();
 
-    // Todosend message in real-time is user online - socket.io
+    // Emit real-time message via socket.io if receiver is online
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
       io.to(receiverSocketId).emit("newMessage", newMessage);
@@ -77,16 +102,47 @@ export const sendMessage = async (req, res) => {
 
     res.status(201).json(newMessage);
   } catch (error) {
-    console.error("Error in sendMessage controller:", error);
+    console.error("Error in sendMessage:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
 
+// Update a message
+export const updateMessage = async (req, res) => {
+  try {
+    const { id: messageId } = req.params;
+    const { text } = req.body;
+    const file = req.file;
+    const userId = req.user._id;
+
+    const message = await Message.findById(messageId);
+    if (!message) return res.status(404).json({ message: "Message not found" });
+
+    if (message.senderId.toString() !== userId.toString()) {
+      return res
+        .status(403)
+        .json({ message: "You can only edit your messages" });
+    }
+
+    if (text) message.text = text;
+    if (file) {
+      const imageUrl = await uploadBufferToCloudinary(file.buffer);
+      message.image = imageUrl;
+    }
+
+    await message.save();
+    res.status(200).json(message);
+  } catch (error) {
+    console.error("Error updating message:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+// Get chat partners
 export const getChatPartners = async (req, res) => {
   try {
     const loggedInUserId = req.user._id;
 
-    // find all the messages where the logged-in user is either the sender or receiver
     const messages = await Message.find({
       $or: [{ senderId: loggedInUserId }, { receiverId: loggedInUserId }],
     });
