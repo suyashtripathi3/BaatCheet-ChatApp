@@ -60,7 +60,6 @@ function MessageInput() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // ✅ Final handleSend function
   const handleSend = async (e) => {
     e.preventDefault();
     if (!text.trim() && !image) return;
@@ -70,8 +69,6 @@ function MessageInput() {
     if (image) formData.append("image", image);
 
     const oldText = text;
-
-    // Clear input immediately for better UX
     setText("");
     removeImage();
     setShowEmojiPicker(false);
@@ -96,13 +93,6 @@ function MessageInput() {
     }
   };
 
-  // Populate input when editing
-  const startEditingMessage = (message) => {
-    setMessageBeingEdited(message);
-    setText(message.text || "");
-    setImagePreview(message.image || null);
-  };
-
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -121,32 +111,37 @@ function MessageInput() {
   }, []);
 
   return (
-    <div className="p-3 sm:p-4 border-t border-slate-700/50 relative bg-slate-900/50 backdrop-blur-md">
+    <div className="fixed bottom-0 left-0 w-full border-t border-slate-700/50 bg-slate-900/80 backdrop-blur-md z-40">
       {/* ✅ Emoji Picker */}
       {showEmojiPicker && (
         <div
           ref={emojiPickerRef}
-          className="absolute bottom-20 sm:bottom-16 left-2 sm:left-4 z-50"
+          className="absolute bottom-16 left-1/2 -translate-x-1/2 w-[95vw] sm:w-auto z-50 bg-slate-800/95 rounded-lg shadow-lg"
         >
-          <EmojiPicker onEmojiClick={handleEmojiClick} theme="dark" />
+          <EmojiPicker
+            onEmojiClick={handleEmojiClick}
+            theme="dark"
+            width="100%"
+            height="280px"
+          />
         </div>
       )}
 
       {/* ✅ Image Preview */}
       {imagePreview && (
-        <div className="max-w-3xl mx-auto mb-2 flex items-center justify-start">
+        <div className="max-w-md mx-auto mb-2 flex items-center justify-start px-3">
           <div className="relative">
             <img
               src={imagePreview}
               alt="Preview"
-              className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border border-slate-700"
+              className="w-14 h-14 sm:w-20 sm:h-20 object-cover rounded-lg border border-slate-700"
             />
             <button
               onClick={removeImage}
-              className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-slate-200 hover:bg-slate-700"
+              className="absolute -top-2 -right-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-slate-800 flex items-center justify-center text-slate-200 hover:bg-slate-700"
               type="button"
             >
-              <XIcon className="w-4 h-4" />
+              <XIcon className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
           </div>
         </div>
@@ -155,8 +150,9 @@ function MessageInput() {
       {/* ✅ Message Input */}
       <form
         onSubmit={handleSend}
-        className="max-w-3xl mx-auto flex items-center gap-2 sm:gap-3 px-2 sm:px-0"
+        className="w-full flex items-center gap-1.5 px-2 py-2 sm:py-3"
       >
+        {/* Emoji Button */}
         <button
           type="button"
           onClick={() => setShowEmojiPicker((prev) => !prev)}
@@ -165,6 +161,7 @@ function MessageInput() {
           <SmileIcon className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
 
+        {/* Image Upload */}
         <label
           htmlFor="imageUpload"
           className={`cursor-pointer p-2 rounded-lg ${
@@ -185,6 +182,7 @@ function MessageInput() {
           />
         </label>
 
+        {/* Input Field */}
         <input
           type="text"
           value={text}
@@ -192,14 +190,15 @@ function MessageInput() {
           placeholder={
             messageBeingEdited ? "Editing message..." : "Type your message..."
           }
-          className="flex-1 bg-slate-800/60 border border-slate-700/50 rounded-lg py-2 px-3 sm:px-4 text-slate-200 placeholder-slate-400 outline-none text-sm sm:text-base focus:ring-1 focus:ring-cyan-500 transition"
+          className="flex-1 w-full bg-slate-800/60 border border-slate-700/50 rounded-lg py-2 px-3 text-slate-200 placeholder-slate-400 outline-none text-sm sm:text-base focus:ring-1 focus:ring-cyan-500 transition"
           disabled={isUploading}
         />
 
+        {/* Send Button */}
         <button
           type="submit"
           disabled={(!text.trim() && !image) || isUploading}
-          className="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white rounded-lg px-3 sm:px-4 py-2 font-medium hover:from-cyan-600 hover:to-cyan-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center active:scale-95"
+          className="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white rounded-lg p-2 sm:px-3 sm:py-2 font-medium hover:from-cyan-600 hover:to-cyan-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center active:scale-95"
         >
           {isUploading ? (
             <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
